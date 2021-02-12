@@ -1,10 +1,14 @@
+---
 apiVersion: tekton.dev/v1alpha1
 kind: TaskRun
 metadata:
-  creationTimestamp: null
   generateName: hello-with-params-run-
   namespace: default
 spec:
+  serviceAccountName: ""
+  params: 
+    - name: person
+      value: Bob
   taskRef:
     name: hello-with-params
   timeout: 0h1m0s

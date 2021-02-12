@@ -1,0 +1,37 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: say-hello-sequenced
+spec:
+  tasks:
+    - name: first-task
+      params:
+        - name: person
+          value: "Bob"
+      taskRef:
+        name: hello-with-params
+    - name: second-task
+      params:
+        - name: person
+          value: "John"
+      taskRef:
+        name: hello-with-params
+    - name: third-task
+      params:
+        - name: person
+          value: "Jane"
+      taskRef:
+        name: hello-with-params
+      runAfter:
+        - first-task
+      
+    - name: fourth-task
+      params:
+        - name: person
+          value: "Clara"
+      taskRef:
+        name: hello-with-params
+      runAfter:
+        - second-task
+    

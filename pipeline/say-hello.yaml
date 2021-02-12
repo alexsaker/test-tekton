@@ -1,0 +1,19 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: say-hello
+spec:
+  tasks:
+    - name: first-hello
+      params:
+        - name: person
+          value: "Bob"
+      taskRef:
+        name: hello-with-params
+    - name: second-task
+      params:
+        - name: person
+          value: "John"
+      taskRef:
+        name: hello-with-params
