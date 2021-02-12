@@ -1,0 +1,17 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: count
+spec:
+  resources:
+    - name: git-repo
+      type: git
+  tasks:
+    - name: count-task
+      taskRef:
+        name: count-files
+      resources:
+        inputs:
+          - name: repo
+            resource: git-repo

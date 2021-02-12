@@ -42,7 +42,7 @@ spec:
       args: ['-c', 'echo Hello World']
 ```
 
-You can register the task to the cluster using a kubsctl command.
+You can register the task to the cluster using a kubectl command.
 ```bash
 kubectl create -f task/hello.yaml
 tkn task start hello --dry-run > taskRun/hello.yaml
@@ -93,7 +93,7 @@ spec:
       args: ['-c', 'echo Hello $(params.person)']
 ```
 
-You can register the task to the cluster using a kubsctl command.
+You can register the task to the cluster using a kubectl command.
 ```bash
 kubectl create -f task/hello-with-params.yaml
 tkn task start hello-with-params --dry-run > taskRun/hello-with-params.yaml
@@ -159,7 +159,7 @@ spec:
         console.log(fileContent);
 ```
 
-You can register the task to the cluster using a kubsctl command.
+You can register the task to the cluster using a kubectl command.
 ```bash
 kubectl create -f task/hello-multi-stage.yaml
 tkn task start hello-multi-stage --dry-run > taskRun/hello-multi-stage.yaml
@@ -213,13 +213,13 @@ spec:
       taskRef:
         name: hello-with-params
 ```
-You can start the pipeline using the following command:
+You can start the pipeline using the following commands:
 ```bash
 kubectl create -f pipeline/say-hello 
 tkn pipeline start say-hello --showlog 
 ```
 
-## Fourth:  Sequenced Pipeline
+## Fith:  Sequenced Pipeline
 ```yaml
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
@@ -257,13 +257,73 @@ spec:
       runAfter:
         - second-task
 ```
-You can start the pipeline using the following command:
+You can start the pipeline using the following commands:
 ```bash
 kubectl create -f pipeline/say-hello-sequenced
 tkn pipeline start say-hello-sequenced --showlog 
 ```
 
 
+
+## Sixth:  Pipeline with  Git resource
+```yaml
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: count-files
+spec:
+  resources:
+    inputs:
+      - name: repo
+        type: git
+        targetPath: code
+  steps:
+    - name: count
+      image: registry.access.redhat.com/ubi8/ubi
+      command:
+        - /bin/bash
+      args: ['-c', 'echo $(find ./code -type f | wc -l) files in repo']
+
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: count
+spec:
+  resources:
+    - name: git-repo
+      type: git
+  tasks:
+    - name: count-task
+      taskRef:
+        name: count-files
+      resources:
+        inputs:
+          - name: repo
+            resource: git-repo
+---
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: git-repo
+spec:
+  type: git  
+  params:
+    - name: url
+      value: https://github.com/alexsaker/test-tekton.git
+
+```
+You will need to create a token to be able to access your repo.
+Once the token is acquired, you will be able to generate an opaque secret using the kubectl command.
+```bash
+kubectl apply -f secret/github-secrets.yaml
+``` 
+You will be able to start the pipeline using the following commands:
+```bash
+kubectl create -f task/count.yaml
+kubectl create -f pipeline/count.yaml
+tkn pipeline start say-hello-sequenced --showlog 
+```
 
 ## Dashboard
 ```bash

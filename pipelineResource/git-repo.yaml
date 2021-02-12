@@ -1,0 +1,14 @@
+---
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: git-repo
+spec:
+  type: git  
+  params:
+    - name: url
+      value: https://github.com/alexsaker/test-tekton.git
+  secrets:
+      - fieldName: authToken
+        secretName: github-secrets
+        secretKey: token
